@@ -1,0 +1,70 @@
+Arguments: 
+  /Users/cudr/.nvm/versions/node/v9.11.1/bin/node /usr/local/Cellar/yarn/1.5.1_1/libexec/bin/yarn.js publish
+
+PATH: 
+  /Users/cudr/.nvm/versions/node/v9.11.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+
+Yarn version: 
+  1.5.1
+
+Node version: 
+  9.11.1
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "name": "react-modal-promise",
+    "version": "0.0.4",
+    "description": "Modal promise wrapper for React components",
+    "keywords": [
+      "react",
+      "modal",
+      "dialog",
+      "promise"
+    ],
+    "main": "dist/index.js",
+    "scripts": {
+      "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+      "prepublishOnly": "npm run build"
+    },
+    "files": [
+      "dist"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/cudr/react-modal-promise.git"
+    },
+    "author": "cudr",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/cudr/react-modal-promise/issues"
+    },
+    "homepage": "https://github.com/cudr/react-modal-promise#readme",
+    "devDependencies": {
+      "babel-cli": "^6.26.0",
+      "babel-preset-env": "^1.7.0",
+      "babel-preset-react": "^6.24.1",
+      "babel-preset-stage-2": "^6.24.1"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: https://registry.yarnpkg.com/react-modal-promise: You cannot publish over the previously published versions: 0.0.4.
+      at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.5.1_1/libexec/lib/cli.js:65019:18)
+      at Request.self.callback (/usr/local/Cellar/yarn/1.5.1_1/libexec/lib/cli.js:132430:22)
+      at Request.emit (events.js:180:13)
+      at Request.<anonymous> (/usr/local/Cellar/yarn/1.5.1_1/libexec/lib/cli.js:133413:10)
+      at Request.emit (events.js:180:13)
+      at Gunzip.<anonymous> (/usr/local/Cellar/yarn/1.5.1_1/libexec/lib/cli.js:133333:12)
+      at Object.onceWrapper (events.js:272:13)
+      at Gunzip.emit (events.js:185:15)
+      at endReadableNT (_stream_readable.js:1106:12)
+      at process._tickCallback (internal/process/next_tick.js:178:19)
