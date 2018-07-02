@@ -1,14 +1,7 @@
 import React, { PureComponent } from 'react'
-import { createPortal } from 'react-dom'
 import randHex from './randHex'
 
-const PortalWrapper = ({ children, container }) => createPortal(children, container)
-
 class ModalFactory extends PureComponent {
-
-  static props = {
-    killTimeout: 1000
-  }
 
   constructor(props) {
     super(props)
@@ -26,13 +19,12 @@ class ModalFactory extends PureComponent {
       const { Component, props, resolve } = this.state.modals[key]
 
       return (
-        <PortalWrapper key={key} container={this.modalContainer}>
-          <Component
-            {...props}
-            close={resolve}
-            open={this.state.hashStack.find(h => h === key)}
-          />
-        </PortalWrapper>
+        <Component
+          {...props}
+          key={key}
+          close={resolve}
+          open={this.state.hashStack.find(h => h === key)}
+        />
       )
     })
 
@@ -56,8 +48,11 @@ class ModalFactory extends PureComponent {
             resolve
           },
           ...this.state.modals
-        },
-        hashStack: [ ...this.state.hashStack, hash ]
+        }
+      }, () => {
+        setTimeout(() => {
+          this.setState({ hashStack: [ ...this.state.hashStack, hash ] })
+        }, 50)
       })
     })
   }
@@ -66,7 +61,7 @@ class ModalFactory extends PureComponent {
     this.setState({
       hashStack: this.state.hashStack.filter(h => h !== hash)
     }, () => {
-      setTimeout(this.omitState, this.props.killTimeout, hash)
+      setTimeout(this.omitState, 2000, hash)
     })
   }
 
