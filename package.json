@@ -1,6 +1,6 @@
 {
   "name": "react-modal-promise",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Modal promise wrapper for React components",
   "keywords": [
     "react",
