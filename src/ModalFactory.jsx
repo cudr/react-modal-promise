@@ -15,7 +15,7 @@ class ModalFactory extends PureComponent {
 
     this.state = {
       modals: {},
-      hashStask: []
+      hashStack: []
     }
   }
 
@@ -30,7 +30,7 @@ class ModalFactory extends PureComponent {
           <Component
             {...props}
             close={resolve}
-            open={this.state.hashStask.find(h => h === key)}
+            open={this.state.hashStack.find(h => h === key)}
           />
         </PortalWrapper>
       )
@@ -57,14 +57,14 @@ class ModalFactory extends PureComponent {
           },
           ...this.state.modals
         },
-        hashStask: [ ...this.state.hashStask, hash ]
+        hashStack: [ ...this.state.hashStack, hash ]
       })
     })
   }
 
   delete = hash => {
     this.setState({
-      hashStask: this.state.hashStask.filter(h => h !== hash)
+      hashStack: this.state.hashStack.filter(h => h !== hash)
     }, () => {
       setTimeout(this.omitState, this.props.killTimeout, hash)
     })
