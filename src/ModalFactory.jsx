@@ -23,7 +23,7 @@ class ModalFactory extends PureComponent {
           {...props}
           key={key}
           close={resolve}
-          open={this.state.hashStack.find(h => h === key)}
+          open={this.state.hashStack.find(h => h === key) || false}
         />
       )
     })
