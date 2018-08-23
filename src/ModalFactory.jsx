@@ -10,6 +10,10 @@ class ModalFactory extends PureComponent {
       modals: {},
       hashStack: []
     }
+    this.defaultOptions = {
+      exitTimeout: 500,
+      enterTimeout: 50
+    }
   }
 
   getModals = () => {
@@ -31,10 +35,10 @@ class ModalFactory extends PureComponent {
     return mapKeys
   }
 
-  create = Component => {
+  create = (Component, options={}) => {
     return props => new Promise(promiseResolve => {
       const hash = randHex()
-
+      const resultOptions = { ...this.defaultOptions, ...options }
       const resolve = value => {
         this.delete(hash)
         promiseResolve(value)
@@ -45,23 +49,26 @@ class ModalFactory extends PureComponent {
           [hash]: {
             Component,
             props,
-            resolve
+            resolve,
+            ...resultOptions
           },
           ...this.state.modals
         }
       }, () => {
         setTimeout(() => {
           this.setState({ hashStack: [ ...this.state.hashStack, hash ] })
-        }, 50)
+        }, resultOptions.enterTimeout)
       })
     })
   }
 
   delete = hash => {
+    const { modals: { hash: target } } = this.state
+    const exitTimeout = target && target.exitTimeout
     this.setState({
       hashStack: this.state.hashStack.filter(h => h !== hash)
     }, () => {
-      setTimeout(this.omitState, 2000, hash)
+      setTimeout(this.omitState, exitTimeout, hash)
     })
   }
 

@@ -7,7 +7,7 @@ const PromiseModal = () => (
   <ModalFactory ref={node => { modal.stack = node }} />
 )
 
-const createModal = Component => props => modal.stack.create(Component)(props)
+const createModal = (Component, options) => props => modal.stack.create(Component, options)(props)
 
 export default PromiseModal
 
