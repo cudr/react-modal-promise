@@ -1,6 +1,6 @@
 {
   "name": "react-modal-promise",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Modal promise wrapper for React components",
   "keywords": [
     "react",
@@ -9,8 +9,10 @@
     "promise"
   ],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.es.js",
   "scripts": {
-    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "build": "NODE_ENV=production rollup -c -m inline && cp src/index.d.ts dist/index.d.ts",
     "prepublishOnly": "npm run build"
   },
   "files": [
@@ -27,9 +29,18 @@
   },
   "homepage": "https://github.com/cudr/react-modal-promise#readme",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1"
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "@types/node": "^11.10.5",
+    "@types/react": "^16.8.7",
+    "rollup": "^1.6.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "typescript": "^3.3.3333"
+  },
+  "peerDependencies": {
+    "react": "^16.0.0"
   }
 }
