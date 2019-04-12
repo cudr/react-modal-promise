@@ -63,7 +63,7 @@ class ModalFactory extends PureComponent {
   }
 
   delete = hash => {
-    const { modals: { hash: target } } = this.state
+    const { modals: { [hash]: target } } = this.state
     const exitTimeout = target && target.exitTimeout
     this.setState({
       hashStack: this.state.hashStack.filter(h => h !== hash)
