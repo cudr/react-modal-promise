@@ -13,7 +13,7 @@ declare module "react-modal-promise" {
         exitTimeout?: number;
         enterTimeout?: number;
       }
-    ): (props: Omit<T, "open" | "close">) => Result;
+    ): (props: Omit<T, "open" | "close">) => Promise<Result>;
   }
   export const createModal: CreateModal;
 
