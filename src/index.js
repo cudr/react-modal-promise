@@ -6,9 +6,11 @@ const defaultArea = 'stack'
 let modalStack = {}
 
 if (typeof window !== 'undefined') {
-  if (window.modalStack) {
-    modalStack = window.modalStack
+  if (!window.modalStack) {
+    window.modalStack = {}
   }
+  
+  modalStack = window.modalStack
 }
 
 const PromiseModal = options => (
