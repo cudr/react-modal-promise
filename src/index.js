@@ -5,11 +5,11 @@ const defaultArea = 'stack'
 
 const modal = {}
 
-const PromiseModal = ({ area = defaultArea }) => (
-  <ModalFactory ref={node => { modal[area] = node }} />
+const PromiseModal = options => (
+  <ModalFactory ref={node => { modal[options && options.area || defaultArea] = node }} />
 )
 
-const createModal = (Component, { area = defaultArea, ...options}) => props => modal[area].create(Component, options)(props)
+const createModal = (Component, options) => props => modal[options && options.area || defaultArea].create(Component, options)(props)
 
 export default PromiseModal
 
