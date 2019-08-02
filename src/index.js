@@ -3,13 +3,19 @@ import ModalFactory from './ModalFactory'
 
 const defaultArea = 'stack'
 
-const modal = {}
+let modalStack = {}
+
+if (typeof window !== 'undefined') {
+  if (window.modalStack) {
+    modalStack = window.modalStack
+  }
+}
 
 const PromiseModal = options => (
-  <ModalFactory ref={node => { modal[options && options.area || defaultArea] = node }} />
+  <ModalFactory ref={node => { modalStack[options && options.area || defaultArea] = node }} />
 )
 
-const createModal = (Component, options) => props => modal[options && options.area || defaultArea].create(Component, options)(props)
+const createModal = (Component, options) => props => modalStack[options && options.area || defaultArea].create(Component, options)(props)
 
 export default PromiseModal
 
