@@ -1,22 +1,28 @@
 {
   "name": "react-modal-promise",
-  "version": "0.2.2",
-  "description": "Modal promise wrapper for React components",
+  "version": "0.3.0",
+  "description": "Promise wrapper for React components",
   "keywords": [
     "react",
     "modal",
     "dialog",
     "promise"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "module": "dist/index.es.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "module": "lib/index.es.js",
   "scripts": {
-    "build": "NODE_ENV=production rollup -c -m inline && cp src/index.d.ts dist/index.d.ts",
-    "prepublishOnly": "npm run build"
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "NODE_ENV=production rollup -c -m inline",
+    "format": "prettier --write",
+    "prepublishOnly": "npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit"
   },
   "files": [
-    "dist"
+    "lib"
   ],
   "repository": {
     "type": "git",
@@ -34,13 +40,42 @@
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
+    "@types/enzyme": "^3.10.3",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/jest": "^24.0.18",
     "@types/node": "^11.10.5",
-    "@types/react": "^16.8.7",
+    "@types/react": "^16.9.2",
+    "babel-jest": "^24.8.0",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "enzyme-to-json": "^3.4.0",
+    "husky": "^3.0.2",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.2.1",
+    "prettier": "^1.18.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "rollup": "^1.6.0",
     "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-typescript": "^1.0.1",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.3.3333"
   },
   "peerDependencies": {
-    "react": "^16.0.0"
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,json}": [
+      "yarn run format",
+      "git add"
+    ]
   }
 }

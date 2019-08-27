@@ -5,3 +5,6 @@ yarn-error.log
 package-lock.json
 node_modules
 dist
+lib
+_book
+examples
