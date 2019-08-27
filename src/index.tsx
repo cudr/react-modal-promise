@@ -3,8 +3,6 @@ import ModalFactory from "./Factory";
 
 export type Scope = string;
 
-type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
-
 type InjectedModalProps<Result> = {
   open: boolean;
   close: (result: Result) => void;
@@ -24,7 +22,7 @@ export interface CreateModalModel {
   <T extends InjectedModalProps<Result>, Result = boolean>(
     Component: React.ComponentType<T>,
     options?: ModalOptions
-  ): (props: Omit<T, "open" | "close">) => Promise<Result>;
+  ): (props?: Omit<T, "open" | "close">) => Promise<Result>;
 }
 
 interface FactoryStackModel {
@@ -49,7 +47,7 @@ if (typeof window !== "undefined") {
   factoryStack = window.factoryStack;
 }
 
-const PromiseFactoryContainer = ({
+const PromiseController = ({
   scope = defaultScope,
   ...rest
 }: ControllerPropsModel) => (
@@ -61,7 +59,7 @@ const PromiseFactoryContainer = ({
   />
 );
 
-PromiseFactoryContainer.defaultProps = {
+PromiseController.defaultProps = {
   scope: defaultScope
 };
 
@@ -71,6 +69,6 @@ const createModal: CreateModalModel = (Component, options) => props =>
     options
   )(props);
 
-export default PromiseFactoryContainer;
+export default PromiseController;
 
 export { createModal };

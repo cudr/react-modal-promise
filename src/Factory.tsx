@@ -32,6 +32,10 @@ class Factory extends React.PureComponent<{}, FactoryState> {
     hashStack: []
   };
 
+  componentWillUnmount() {
+    Object.values(this.state.instances).forEach(instance => instance.resolve());
+  }
+
   render() {
     return <div ref={this.factoryRef}>{this.getInstances()}</div>;
   }
