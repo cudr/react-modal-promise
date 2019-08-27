@@ -25,9 +25,9 @@ class MyApp extends React.Component {
 
 2. Create you own modal component:
 
-You need pass (open: bool) flag to you Modal component
+(You need pass ```open: bool``` flag to you Modal component)
 
-Close modal and resolve Promise by call close() function from props
+Possible to close modal and resolve Promise using close() function from props
 
 ```
 import { createModal } from 'react-modal-promise'
