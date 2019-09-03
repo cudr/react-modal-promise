@@ -42,6 +42,21 @@ describe("simple render suite", () => {
     expect(factory.render().find("#test").length).toBe(1);
   });
 
+  it("pass correct props to component", async () => {
+    expect(
+      factory
+        .update()
+        .find(Modal)
+        .props().value
+    ).toBe("modal_one_value");
+    expect(
+      factory
+        .update()
+        .find(Modal)
+        .props().enterTimeout
+    ).toBe(10);
+  });
+
   it("mount second", async () => {
     testModal({ value: "modal_two_value" }).then(val => {
       expect(val).toBe(undefined);
