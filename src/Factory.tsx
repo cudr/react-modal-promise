@@ -78,7 +78,7 @@ class Factory extends React.PureComponent<{}, FactoryState> {
           instances: {
             [hash]: {
               Component,
-              props,
+              props: { ...itemOptions, ...props },
               resolve,
               ...itemOptions
             },
