@@ -33,7 +33,7 @@ class Factory extends React.PureComponent<any, FactoryState> {
   }
 
   componentWillUnmount() {
-    Object.values(this.state.instances).forEach(instance => instance.resolve())
+    this.resolveAll()
   }
 
   render() {
@@ -111,6 +111,10 @@ class Factory extends React.PureComponent<any, FactoryState> {
   private omitState = (hash: Hex) => {
     const { [hash]: _, ...instances } = this.state.instances
     this.setState({ instances })
+  }
+
+  public resolveAll = () => {
+    Object.values(this.state.instances).forEach(instance => instance.resolve())
   }
 }
 

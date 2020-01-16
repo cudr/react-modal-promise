@@ -33,7 +33,7 @@ Possible to close modal and resolve Promise using close() function from props
 import { createModal } from 'react-modal-promise'
 import { Modal } from 'react-bootstrap'
 
-const MyModal = ({ open: boolean, close: (params: any /*...any params passed to modal*/) }) => (
+const MyModal = ({ open: boolean, close: (params: { [key: string]: any } /*...any params passed to modal*/) }) => (
   <Modal open={open} onHide={() => close()}>
     My Super Promised modal
     <button onClick={() => close(/*pass any value*/)}>Confirm modal</button>
@@ -52,7 +52,7 @@ const myPromiseModal = createModal(MyModal)
 
 ```tsx
 myPromiseModal({ /*pass any props here*/ }).then(value => {
-  // get value that you pass to 'close' function
+  // get value that you passed to 'close' function
 })
 ```
 
