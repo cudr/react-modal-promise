@@ -11,7 +11,7 @@ yarn add react-modal-promise
 
 1. Place ModalContainer in root of your App:
 
-```
+```tsx
 import ModalContainer from 'react-modal-promise'
 
 class MyApp extends React.Component {
@@ -25,15 +25,15 @@ class MyApp extends React.Component {
 
 2. Create you own modal component:
 
-(You need pass ```open: bool``` flag to you Modal component)
+(You need pass ```open: boolean``` flag to you Modal component)
 
 Possible to close modal and resolve Promise using close() function from props
 
-```
+```tsx
 import { createModal } from 'react-modal-promise'
 import { Modal } from 'react-bootstrap'
 
-const MyModal = ({ open: bool, close: function, /*...any props was passed to modal*/ }) => (
+const MyModal = ({ open: boolean, close: (params: { [key: string]: any } /*...any params passed to modal*/) }) => (
   <Modal open={open} onHide={() => close()}>
     My Super Promised modal
     <button onClick={() => close(/*pass any value*/)}>Confirm modal</button>
@@ -43,16 +43,16 @@ const MyModal = ({ open: bool, close: function, /*...any props was passed to mod
 
 And wrap it:
 
-```
+```tsx
 const myPromiseModal = createModal(MyModal)
 
 ```
 
 3. Use modal as Promise everywhere:
 
-```
+```tsx
 myPromiseModal({ /*pass any props here*/ }).then(value => {
-  // get value that you pass to 'close' function
+  // get value that you passed to 'close' function
 })
 ```
 
