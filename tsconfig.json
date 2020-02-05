@@ -13,5 +13,5 @@
     "declaration": true
   },
   "exclude": ["node_modules"],
-  "include": ["src/**/*", "setupEnzyme.ts", "__tests__"]
+  "include": ["src/**/*"]
 }
