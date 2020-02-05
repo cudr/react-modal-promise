@@ -73,17 +73,26 @@ class Factory extends React.PureComponent<any, FactoryState> {
         promiseResolve(value)
       }
 
-      this.setState(
-        {
-          instances: {
-            [hash]: {
-              Component,
-              props: { ...itemOptions, ...props },
-              resolve,
-              ...itemOptions
-            },
+      const entity = {
+        Component,
+        props: { ...itemOptions, ...props },
+        resolve,
+        ...itemOptions
+      }
+
+      const instances = this.props.appendEntities
+        ? {
+            ...this.state.instances,
+            [hash]: entity
+          }
+        : {
+            [hash]: entity,
             ...this.state.instances
           }
+
+      this.setState(
+        {
+          instances
         },
         () => {
           setTimeout(() => {

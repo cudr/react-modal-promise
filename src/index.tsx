@@ -16,6 +16,7 @@ export type ModalOptions = {
 
 export type ControllerPropsModel = {
   scope?: Scope
+  appendEntities?: boolean
 }
 
 export interface CreateModalModel {
@@ -60,7 +61,8 @@ const PromiseController: React.FC<ControllerPropsModel> = ({
 )
 
 PromiseController.defaultProps = {
-  scope: defaultScope
+  scope: defaultScope,
+  appendEntities: false
 }
 
 const createModal: CreateModalModel = (Component, options) => props =>
