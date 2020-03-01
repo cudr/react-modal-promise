@@ -50,12 +50,17 @@ class Factory extends React.PureComponent<any, FactoryState> {
     const mapKeys = keys.map(key => {
       const { Component, props, resolve } = this.state.instances[key]
 
+      const isOpen = Boolean(this.state.hashStack.find(h => h === key))
+
       return (
         <Component
           {...props}
           key={key}
+          isOpen={isOpen}
+          onResolve={resolve}
+          // legacy
           close={resolve}
-          open={Boolean(this.state.hashStack.find(h => h === key))}
+          open={isOpen}
         />
       )
     })
@@ -63,13 +68,15 @@ class Factory extends React.PureComponent<any, FactoryState> {
     return mapKeys
   }
 
-  public create = (Component: Component, options = {}) => (props: any) =>
+  public create = (Component: Component, options: any = {}) => (
+    props = { modalId: hexGen() }
+  ) =>
     new Promise(promiseResolve => {
-      const hash = hexGen()
+      const hash = props.modalId || hexGen()
       const itemOptions = { ...this.defaultOptions, ...options }
 
       const resolve = (value: any) => {
-        this.delete(hash)
+        this.remove(hash)
         promiseResolve(value)
       }
 
@@ -102,7 +109,7 @@ class Factory extends React.PureComponent<any, FactoryState> {
       )
     })
 
-  private delete = (hash: Hex): void => {
+  private remove = (hash: Hex): void => {
     const {
       instances: { [hash]: target }
     } = this.state

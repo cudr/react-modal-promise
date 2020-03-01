@@ -1,11 +1,18 @@
 import React from 'react'
 import ModalFactory from './Factory'
 
+import { Hex } from './hexGen'
+
 export type Scope = string
 
 type InjectedModalProps<Result> = {
-  open: boolean
-  close: (result: Result) => void
+  isOpen?: boolean
+  onResolve?: (result: Result) => void
+  modalId?: string | Hex
+
+  // legacy
+  open?: boolean
+  close?: (result: Result) => void
 }
 
 export type ModalOptions = {
@@ -15,15 +22,17 @@ export type ModalOptions = {
 }
 
 export type ControllerPropsModel = {
-  scope?: Scope
+  scope: Scope
   appendEntities?: boolean
 }
 
 export interface CreateModalModel {
-  <T extends InjectedModalProps<Result>, Result = boolean>(
+  <T extends InjectedModalProps<Result>, Result = any>(
     Component: React.ComponentType<T>,
     options?: ModalOptions
-  ): (props?: Omit<T, 'open' | 'close'>) => Promise<Result>
+  ): (
+    props?: Omit<T, 'isOpen' | 'onResolve' | 'open' | 'close'>
+  ) => Promise<Result>
 }
 
 interface FactoryStackModel {
@@ -48,21 +57,26 @@ if (typeof window !== 'undefined') {
   factoryStack = window.factoryStack
 }
 
-const PromiseController: React.FC<ControllerPropsModel> = ({
-  scope = defaultScope,
-  ...rest
-}) => (
-  <ModalFactory
-    {...rest}
-    ref={(node: ModalFactory) => {
-      factoryStack[scope] = node
-    }}
-  />
-)
+class PromiseController extends React.Component<ControllerPropsModel> {
+  static defaultProps = {
+    scope: defaultScope,
+    appendEntities: false
+  }
 
-PromiseController.defaultProps = {
-  scope: defaultScope,
-  appendEntities: false
+  resolveAll = () => factoryStack[this.props.scope].resolveAll()
+  remove = (id: any) => factoryStack[this.props.scope].remove(id)
+
+  render() {
+    const { scope = defaultScope, ...rest } = this.props
+    return (
+      <ModalFactory
+        {...rest}
+        ref={(node: ModalFactory) => {
+          factoryStack[scope] = node
+        }}
+      />
+    )
+  }
 }
 
 const createModal: CreateModalModel = (Component, options) => props =>
