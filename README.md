@@ -25,18 +25,18 @@ class MyApp extends React.Component {
 
 2. Create you own modal component:
 
-(You need pass ```open: boolean``` flag to you Modal component)
+(You need pass ```isOpen: boolean``` flag to you Modal component)
 
-Possible to close modal and resolve Promise using close() function from props
+Possible to close modal and resolve Promise using onResolve() function from props
 
 ```tsx
 import { createModal } from 'react-modal-promise'
 import { Modal } from 'react-bootstrap'
 
-const MyModal = ({ open: boolean, close: (params: { [key: string]: any } /*...any params passed to modal*/) }) => (
-  <Modal open={open} onHide={() => close()}>
+const MyModal = ({ isOpen: boolean, onResolve: (params: any /*...any params passed to modal*/) }) => (
+  <Modal open={isOpen} onHide={() => onResolve()}>
     My Super Promised modal
-    <button onClick={() => close(/*pass any value*/)}>Confirm modal</button>
+    <button onClick={() => onResolve(/*pass any value*/)}>Confirm modal</button>
   </Modal>
 )
 ```
@@ -56,6 +56,13 @@ myPromiseModal({ /*pass any props here*/ }).then(value => {
 })
 ```
 
+## Examples
+
+Simple:
+[![Edit react-modal-promise-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/patient-water-l761w?fontsize=14&hidenavigation=1&theme=dark)
+
 ## Features
 
 You can use react-modal-promise with any theming (Bootstrap or material-ui, styled-components, or other), all instances works perfectly!
+
+
