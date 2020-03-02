@@ -59,6 +59,7 @@ myPromiseModal({ /*pass any props here*/ }).then(value => {
 ## Examples
 
 Simple:
+
 [![Edit react-modal-promise-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/patient-water-l761w?fontsize=14&hidenavigation=1&theme=dark)
 
 ## Features
