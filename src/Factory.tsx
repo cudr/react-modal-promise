@@ -6,20 +6,32 @@ export type FactoryOptions = {
   enterTimeout?: number
 }
 
+export type InstanceId = Hex | string
 export type Component = React.ComponentType<any>
+
+export type Resolver = (value?: any) => void
+
+export interface Instance extends FactoryOptions {
+  Component: Component
+  props: FactoryOptions & any
+  resolve: Resolver
+}
+
+export interface FactoryProps {
+  isAppendIntances?: boolean
+  onOpen?: (id?: Hex, instance?: Instance) => void
+  onResolve?: (result?: any, id?: InstanceId) => void
+  onRemove?: (id?: InstanceId) => void
+}
 
 export type FactoryState = {
   instances: {
-    [key: string]: {
-      Component: Component
-      props: FactoryOptions & any
-      resolve: any
-    } & any
+    [key: string]: Instance
   }
   hashStack: Hex[]
 }
 
-class Factory extends React.PureComponent<any, FactoryState> {
+class Factory extends React.PureComponent<FactoryProps, FactoryState> {
   public factoryContainer?: HTMLDivElement | null
 
   private defaultOptions: FactoryOptions = {
@@ -37,14 +49,14 @@ class Factory extends React.PureComponent<any, FactoryState> {
   }
 
   render() {
-    return <div ref={this.factoryRef}>{this.getInstances()}</div>
+    return <div ref={this.factoryRef}>{this.getInstanceChildren()}</div>
   }
 
   private factoryRef = (node: HTMLDivElement) => {
     this.factoryContainer = node
   }
 
-  private getInstances = () => {
+  private getInstanceChildren = () => {
     const keys = Object.keys(this.state.instances)
 
     const mapKeys = keys.map(key => {
@@ -58,7 +70,7 @@ class Factory extends React.PureComponent<any, FactoryState> {
           key={key}
           isOpen={isOpen}
           onResolve={resolve}
-          // legacy
+          // legacy API
           close={resolve}
           open={isOpen}
         />
@@ -69,31 +81,34 @@ class Factory extends React.PureComponent<any, FactoryState> {
   }
 
   public create = (Component: Component, options: any = {}) => (
-    props = { modalId: hexGen() }
+    props = { instanceId: hexGen() }
   ) =>
     new Promise(promiseResolve => {
-      const hash = props.modalId || hexGen()
-      const itemOptions = { ...this.defaultOptions, ...options }
+      const hash = props.instanceId || hexGen()
+      const instanceOptions = { ...this.defaultOptions, ...options }
+
+      const { isAppendIntances, onOpen, onResolve } = this.props
 
       const resolve = (value: any) => {
         this.remove(hash)
         promiseResolve(value)
+        onResolve && onResolve(value, hash)
       }
 
-      const entity = {
+      const instance = {
         Component,
-        props: { ...itemOptions, ...props },
+        props: { ...instanceOptions, ...props },
         resolve,
-        ...itemOptions
+        ...instanceOptions
       }
 
-      const instances = this.props.appendEntities
+      const instances = isAppendIntances
         ? {
             ...this.state.instances,
-            [hash]: entity
+            [hash]: instance
           }
         : {
-            [hash]: entity,
+            [hash]: instance,
             ...this.state.instances
           }
 
@@ -104,12 +119,24 @@ class Factory extends React.PureComponent<any, FactoryState> {
         () => {
           setTimeout(() => {
             this.setState({ hashStack: [...this.state.hashStack, hash] })
-          }, itemOptions.enterTimeout)
+          }, instanceOptions.enterTimeout)
         }
       )
+
+      onOpen && onOpen(hash, instance)
     })
 
-  private remove = (hash: Hex): void => {
+  private omitState = (hash: InstanceId) => {
+    const { [hash]: _, ...instances } = this.state.instances
+
+    this.setState({ instances }, () => {
+      const { onRemove } = this.props
+
+      onRemove && onRemove(hash)
+    })
+  }
+
+  private remove = (hash: InstanceId): void => {
     const {
       instances: { [hash]: target }
     } = this.state
@@ -124,9 +151,13 @@ class Factory extends React.PureComponent<any, FactoryState> {
     )
   }
 
-  private omitState = (hash: Hex) => {
-    const { [hash]: _, ...instances } = this.state.instances
-    this.setState({ instances })
+  public getInstance = (hash: InstanceId): Instance | undefined =>
+    this.state.instances[hash]
+
+  public resolve = (hash: InstanceId, value: any) => {
+    const instance = this.state.instances[hash]
+
+    if (instance) return instance.resolve(value)
   }
 
   public resolveAll = () => {

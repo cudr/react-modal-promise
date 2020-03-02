@@ -1,14 +1,14 @@
 import React from 'react'
-import ModalFactory from './Factory'
+import ModalFactory, { FactoryProps, InstanceId } from './Factory'
 
-import { Hex } from './hexGen'
+import hexGen, { Hex } from './hexGen'
 
 export type Scope = string
 
 type InjectedModalProps<Result> = {
   isOpen?: boolean
   onResolve?: (result: Result) => void
-  modalId?: string | Hex
+  instanceId?: InstanceId
 
   // legacy
   open?: boolean
@@ -21,8 +21,8 @@ export type ModalOptions = {
   enterTimeout?: number
 }
 
-export type ControllerPropsModel = {
-  scope: Scope
+export interface ControllerPropsModel extends FactoryProps {
+  scope?: Scope
   appendEntities?: boolean
 }
 
@@ -63,19 +63,26 @@ class PromiseController extends React.Component<ControllerPropsModel> {
     appendEntities: false
   }
 
-  resolveAll = () => factoryStack[this.props.scope].resolveAll()
-  remove = (id: any) => factoryStack[this.props.scope].remove(id)
+  factoryRef!: ModalFactory
+
+  public getInstance = (id: InstanceId) => this.factoryRef.getInstance(id)
+  public hasInstance = (id: InstanceId): boolean =>
+    Boolean(this.getInstance(id))
+
+  public resolveAll = () => this.factoryRef.resolveAll()
+  public resolve = (id: InstanceId, val: any) =>
+    this.factoryRef.resolve(id, val)
 
   render() {
-    const { scope = defaultScope, ...rest } = this.props
-    return (
-      <ModalFactory
-        {...rest}
-        ref={(node: ModalFactory) => {
-          factoryStack[scope] = node
-        }}
-      />
-    )
+    const { scope, ...rest } = this.props
+    return <ModalFactory {...rest} ref={this.registerRef} />
+  }
+
+  registerRef = (node: ModalFactory) => {
+    const { scope = defaultScope } = this.props
+
+    factoryStack[scope] = node
+    this.factoryRef = node
   }
 }
 
@@ -87,4 +94,4 @@ const createModal: CreateModalModel = (Component, options) => props =>
 
 export default PromiseController
 
-export { createModal }
+export { createModal, hexGen }
