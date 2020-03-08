@@ -80,11 +80,10 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
     return mapKeys
   }
 
-  public create = (Component: Component, options: any = {}) => (
-    props = { instanceId: hexGen() }
-  ) =>
+  public create = (Component: Component, options: any = {}) => (props: any) =>
     new Promise(promiseResolve => {
-      const hash = props.instanceId || hexGen()
+      const hash = (props && props.instanceId) || hexGen()
+
       const instanceOptions = { ...this.defaultOptions, ...options }
 
       const { isAppendIntances, onOpen, onResolve } = this.props

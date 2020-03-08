@@ -60,7 +60,16 @@ myPromiseModal({ /*pass any props here*/ }).then(value => {
 
 Simple:
 
-[![Edit react-modal-promise-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/patient-water-l761w?fontsize=14&hidenavigation=1&theme=dark)
+[![Edit react-modal-promise-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-modal-promise-example-by2pd?fontsize=14&hidenavigation=1&theme=dark)
+
+With hook and route control:
+
+[![Edit react-modal-promise-router-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-modal-promise-router-example-jhtet?fontsize=14&hidenavigation=1&theme=dark)
+
+Use multiple scopes:
+
+[![Edit react-modal-promise-multiple-scopes-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-modal-promise-example-wmvmt?fontsize=14&hidenavigation=1&theme=dark)
+
 
 ## Features
 

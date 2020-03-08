@@ -1,7 +1,7 @@
 import React from 'react'
 import ModalFactory, { FactoryProps, InstanceId } from './Factory'
 
-import hexGen, { Hex } from './hexGen'
+import hexGen from './hexGen'
 
 export type Scope = string
 
@@ -23,7 +23,6 @@ export type ModalOptions = {
 
 export interface ControllerPropsModel extends FactoryProps {
   scope?: Scope
-  appendEntities?: boolean
 }
 
 export interface CreateModalModel {
@@ -59,8 +58,7 @@ if (typeof window !== 'undefined') {
 
 class PromiseController extends React.Component<ControllerPropsModel> {
   static defaultProps = {
-    scope: defaultScope,
-    appendEntities: false
+    scope: defaultScope
   }
 
   factoryRef!: ModalFactory
