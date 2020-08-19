@@ -79,8 +79,10 @@ class PromiseController extends React.Component<ControllerPropsModel> {
   registerRef = (node: ModalFactory) => {
     const { scope = defaultScope } = this.props
 
-    factoryStack[scope] = node
-    this.factoryRef = node
+    if (node) {
+      factoryStack[scope] = node
+      this.factoryRef = node
+    }
   }
 }
 
