@@ -52,7 +52,7 @@
     "husky": "^3.0.2",
     "jest": "^24.9.0",
     "lint-staged": "^9.2.1",
-    "prettier": "^1.18.2",
+    "prettier": "^2.1.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "rollup": "^1.6.0",
