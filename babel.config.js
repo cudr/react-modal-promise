@@ -17,7 +17,8 @@ module.exports = function(api) {
       "@babel/react",
     ],
     plugins: [
-      "@babel/plugin-proposal-class-properties"
+      "@babel/proposal-class-properties",
+      "@babel/proposal-optional-chaining"
     ],
   };
 };
