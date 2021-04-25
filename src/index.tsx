@@ -7,8 +7,9 @@ export type Scope = string
 
 type InjectedModalProps<Result> = {
   isOpen?: boolean
-  onResolve?: (result: Result) => void
   instanceId?: InstanceId
+  onReject?: (reason: Result) => void
+  onResolve?: (result: Result) => void
 
   // legacy
   open?: boolean
@@ -30,7 +31,7 @@ export interface CreateModalModel {
     Component: React.ComponentType<T>,
     options?: ModalOptions
   ): (
-    props?: Omit<T, 'isOpen' | 'onResolve' | 'open' | 'close'>
+    props?: Omit<T, 'isOpen' | 'onResolve' | 'onReject' | 'open' | 'close'>
   ) => Promise<Result>
 }
 
@@ -58,7 +59,7 @@ if (typeof window !== 'undefined') {
 
 class PromiseController extends React.Component<ControllerPropsModel> {
   static defaultProps = {
-    scope: defaultScope
+    scope: defaultScope,
   }
 
   factoryRef!: ModalFactory
@@ -67,9 +68,15 @@ class PromiseController extends React.Component<ControllerPropsModel> {
   public hasInstance = (id: InstanceId): boolean =>
     Boolean(this.getInstance(id))
 
+  public rejectAll = () => this.factoryRef.rejectAll()
+
   public resolveAll = () => this.factoryRef.resolveAll()
+
   public resolve = (id: InstanceId, val: any) =>
     this.factoryRef.resolve(id, val)
+
+  public reject = (id: InstanceId, reason: any) =>
+    this.factoryRef.reject(id, reason)
 
   render() {
     const { scope, ...rest } = this.props

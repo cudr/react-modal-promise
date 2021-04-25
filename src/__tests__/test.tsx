@@ -3,17 +3,20 @@ import { mount } from 'enzyme'
 
 import ModalController, { createModal } from '../index'
 
-const Modal = ({ open, close, value }: any) => {
-  if (!open) return null
+const Modal = ({ value, error, isOpen, onResolve, onReject }: any) => {
+  if (!isOpen) return null
 
   return (
     <div id="test">
       Test Modal
-      <button id="cancel" onClick={() => close()}>
+      <button id="cancel" onClick={() => onResolve()}>
         close
       </button>
-      <button id="success" onClick={() => close(value)}>
+      <button id="success" onClick={() => onResolve(value)}>
         submit
+      </button>
+      <button id="dismiss" onClick={() => onReject(error)}>
+        dismiss
       </button>
     </div>
   )
@@ -27,9 +30,9 @@ describe('simple render suite', () => {
   const testModal = createModal(Modal, { enterTimeout: 10, exitTimeout: 10 })
 
   it('return correct value', async () => {
-    testModal({ value: 'modal_one_value' }).then(val => {
-      expect(val).toBe('modal_one_value')
-    })
+    expect(testModal({ value: 'modal_one_value' })).resolves.toBe(
+      'modal_one_value'
+    )
   })
 
   it('mount first', async () => {
@@ -43,24 +46,12 @@ describe('simple render suite', () => {
   })
 
   it('pass correct props to component', async () => {
-    expect(
-      factory
-        .update()
-        .find(Modal)
-        .props().value
-    ).toBe('modal_one_value')
-    expect(
-      factory
-        .update()
-        .find(Modal)
-        .props().enterTimeout
-    ).toBe(10)
+    expect(factory.update().find(Modal).props().value).toBe('modal_one_value')
+    expect(factory.update().find(Modal).props().enterTimeout).toBe(10)
   })
 
   it('mount second', async () => {
-    testModal({ value: 'modal_two_value' }).then(val => {
-      expect(val).toBe(undefined)
-    })
+    expect(testModal({ value: 'modal_two_value' })).resolves.toBe(undefined)
 
     controller.update()
     factory.update()
@@ -73,12 +64,7 @@ describe('simple render suite', () => {
 
   it('unmount first', async () => {
     // simulate click
-    factory
-      .update()
-      .find(Modal)
-      .at(1)
-      .find('#success')
-      .simulate('click')
+    factory.update().find(Modal).at(1).find('#success').simulate('click')
 
     await sleep(10)
 
@@ -90,11 +76,7 @@ describe('simple render suite', () => {
   })
 
   it('unmount second', async () => {
-    factory
-      .update()
-      .find(Modal)
-      .find('#cancel')
-      .simulate('click')
+    factory.update().find(Modal).find('#cancel').simulate('click')
 
     await sleep(10)
 
@@ -112,7 +94,7 @@ describe('scope render suite', () => {
   const scopeModal = createModal(Modal, {
     scope: 'my_scope',
     enterTimeout: 10,
-    exitTimeout: 10
+    exitTimeout: 10,
   })
 
   it('render in scope', async () => {
@@ -134,17 +116,12 @@ describe('controller suite', () => {
   const modal = createModal(Modal, {
     scope: 'manipulate',
     enterTimeout: 10,
-    exitTimeout: 10
+    exitTimeout: 10,
   })
 
   it('resolve instance', async () => {
-    modal({ instanceId: 'one' }).then(val => {
-      expect(val).toBe('test result')
-    })
-
-    modal({ instanceId: 'two' }).then(val => {
-      expect(val).toBe(undefined)
-    })
+    expect(modal({ instanceId: 'one' })).resolves.toBe('test result')
+    expect(modal({ instanceId: 'two' })).resolves.toBe(undefined)
 
     controller.update()
     factory.update()
@@ -174,6 +151,44 @@ describe('controller suite', () => {
     expect(factory.state().hashStack.length).toEqual(0)
   })
 
+  it('reject instance', async () => {
+    modal({ instanceId: 'one' }).catch(err => {
+      expect(err).toBe('test error one')
+    })
+
+    modal({ instanceId: 'two', error: 'test error two' }).catch(err => {
+      expect(err).toBe('test error two')
+    })
+
+    controller.update()
+    factory.update()
+
+    await sleep(10)
+
+    expect(factory.state().hashStack.length).toEqual(2)
+
+    // @ts-ignore
+    controller.instance().reject('one', 'test error one')
+
+    controller.update()
+    factory.update()
+
+    await sleep(10)
+
+    expect(factory.state().hashStack.length).toEqual(1)
+
+    factory.update().find(Modal).find('#dismiss').simulate('click')
+
+    await sleep(10)
+
+    controller.update()
+    factory.update()
+
+    await sleep(10)
+
+    expect(factory.state().hashStack.length).toEqual(0)
+  })
+
   it('resolve all instances', async () => {
     modal()
     modal()
@@ -187,6 +202,28 @@ describe('controller suite', () => {
 
     // @ts-ignore
     controller.instance().resolveAll()
+
+    controller.update()
+    factory.update()
+
+    await sleep(10)
+
+    expect(factory.state().hashStack.length).toEqual(0)
+  })
+
+  it('reject all instances', async () => {
+    expect(modal()).rejects.toBe(undefined)
+    expect(modal()).rejects.toBe(undefined)
+
+    controller.update()
+    factory.update()
+
+    await sleep(10)
+
+    expect(factory.state().hashStack.length).toEqual(2)
+
+    // @ts-ignore
+    controller.instance().rejectAll()
 
     controller.update()
     factory.update()

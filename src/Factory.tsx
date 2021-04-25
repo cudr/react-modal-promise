@@ -10,17 +10,20 @@ export type InstanceId = Hex | string
 export type Component = React.ComponentType<any>
 
 export type Resolver = (value?: any) => void
+export type Rejector = (reason?: any) => void
 
 export interface Instance extends FactoryOptions {
   Component: Component
   props: FactoryOptions & any
   resolve: Resolver
+  reject: Rejector
 }
 
 export interface FactoryProps {
   isAppendIntances?: boolean
   onOpen?: (id?: Hex, instance?: Instance) => void
   onResolve?: (result?: any, id?: InstanceId) => void
+  onReject?: (reason?: any, id?: InstanceId) => void
   onRemove?: (id?: InstanceId) => void
 }
 
@@ -36,12 +39,12 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
 
   private defaultOptions: FactoryOptions = {
     exitTimeout: 500,
-    enterTimeout: 50
+    enterTimeout: 50,
   }
 
   state: FactoryState = {
     instances: {},
-    hashStack: []
+    hashStack: [],
   }
 
   componentWillUnmount() {
@@ -60,7 +63,7 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
     const keys = Object.keys(this.state.instances)
 
     const mapKeys = keys.map(key => {
-      const { Component, props, resolve } = this.state.instances[key]
+      const { Component, props, resolve, reject } = this.state.instances[key]
 
       const isOpen = Boolean(this.state.hashStack.find(h => h === key))
 
@@ -69,6 +72,7 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
           {...props}
           key={key}
           isOpen={isOpen}
+          onReject={reject}
           onResolve={resolve}
           // legacy API
           close={resolve}
@@ -81,39 +85,46 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
   }
 
   public create = (Component: Component, options: any = {}) => (props: any) =>
-    new Promise(promiseResolve => {
+    new Promise((res, rej) => {
       const hash = (props && props.instanceId) || hexGen()
 
       const instanceOptions = { ...this.defaultOptions, ...options }
 
-      const { isAppendIntances, onOpen, onResolve } = this.props
+      const { isAppendIntances, onOpen, onResolve, onReject } = this.props
 
       const resolve = (value: any) => {
         this.remove(hash)
-        promiseResolve(value)
-        onResolve && onResolve(value, hash)
+        res(value)
+        onResolve?.(value, hash)
+      }
+
+      const reject = (reason: any) => {
+        this.remove(hash)
+        rej(reason)
+        onReject?.(reason, hash)
       }
 
       const instance = {
         Component,
         props: { ...instanceOptions, ...props },
         resolve,
-        ...instanceOptions
+        reject,
+        ...instanceOptions,
       }
 
       const instances = isAppendIntances
         ? {
             ...this.state.instances,
-            [hash]: instance
+            [hash]: instance,
           }
         : {
             [hash]: instance,
-            ...this.state.instances
+            ...this.state.instances,
           }
 
       this.setState(
         {
-          instances
+          instances,
         },
         () => {
           setTimeout(() => {
@@ -137,12 +148,12 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
 
   private remove = (hash: InstanceId): void => {
     const {
-      instances: { [hash]: target }
+      instances: { [hash]: target },
     } = this.state
     const exitTimeout = target && target.exitTimeout
     this.setState(
       {
-        hashStack: this.state.hashStack.filter(h => h !== hash)
+        hashStack: this.state.hashStack.filter(h => h !== hash),
       },
       () => {
         setTimeout(this.omitState, exitTimeout, hash)
@@ -159,8 +170,18 @@ class Factory extends React.PureComponent<FactoryProps, FactoryState> {
     if (instance) return instance.resolve(value)
   }
 
+  public reject = (hash: InstanceId, reason: any) => {
+    const instance = this.state.instances[hash]
+
+    if (instance) return instance.reject(reason)
+  }
+
   public resolveAll = () => {
     Object.values(this.state.instances).forEach(instance => instance.resolve())
+  }
+
+  public rejectAll = () => {
+    Object.values(this.state.instances).forEach(instance => instance.reject())
   }
 }
 
