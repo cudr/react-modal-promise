@@ -9,7 +9,7 @@ yarn add react-modal-promise
 
 ## How to use:
 
-1. Place ModalContainer in root of your App:
+1. Place ModalContainer in any place of your App, it will emit new modal instances:
 
 ```tsx
 import ModalContainer from 'react-modal-promise'
@@ -25,18 +25,19 @@ class MyApp extends React.Component {
 
 2. Create you own modal component:
 
-(You need pass ```isOpen: boolean``` flag to you Modal component)
+(You should pass ```isOpen: boolean``` flag to you Modal component)
 
-Possible to close modal and resolve Promise using onResolve() function from props
+You can resolve or reject Promise with onResolve() or onReject() callback from props:
 
 ```tsx
 import { createModal } from 'react-modal-promise'
 import { Modal } from 'react-bootstrap'
 
-const MyModal = ({ isOpen: boolean, onResolve: (params: any /*...any params passed to modal*/) }) => (
-  <Modal open={isOpen} onHide={() => onResolve()}>
+const MyModal = ({ isOpen, onResolve, onReject }) => (
+  <Modal open={isOpen} onHide={() => onReject()}>
     My Super Promised modal
     <button onClick={() => onResolve(/*pass any value*/)}>Confirm modal</button>
+    <button onClick={() => onReject(/*throw any error*/)}>Reject modal</button>
   </Modal>
 )
 ```
@@ -48,12 +49,15 @@ const myPromiseModal = createModal(MyModal)
 
 ```
 
-3. Use modal as Promise everywhere:
+3. Use the modal as a Promise everywhere:
 
 ```tsx
-myPromiseModal({ /*pass any props here*/ }).then(value => {
-  // get value that you passed to 'close' function
-})
+myPromiseModal({ /*pass any props there*/ })
+  .then(value => {
+    // get value that you passed to 'onResolve' function
+  }).catch(error => {
+    // get error that you passed to 'onReject' function
+  })
 ```
 
 ## Examples
@@ -73,6 +77,5 @@ Use multiple scopes:
 
 ## Features
 
-You can use react-modal-promise with any theming (Bootstrap or material-ui, styled-components, or other), all instances works perfectly!
-
+You can use react-modal-promise with any theming (Bootstrap or material-ui, styled-components, or other), all instances work great!
 
