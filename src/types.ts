@@ -39,7 +39,7 @@ export interface Instance extends InstanceOptions {
 }
 export interface ContainerProps extends InstanceOptions {
   isAppendIntances?: boolean
-  onOpen?: (id?: Hex, instance?: Instance) => void
+  onOpen?: (id?: InstanceId, instance?: Instance) => void
   onResolve?: Resolver
   onReject?: Rejector
   onRemove?: (id?: InstanceId) => void
@@ -51,6 +51,8 @@ export interface ContainerRef {
   resolveAll: <T>(value?: T) => void
   reject: Rejector
   rejectAll: <T>(reason?: T) => void
+  getInstance: (id: InstanceId) => Instance | null
+  hasInstance: (id: InstanceId) => boolean
 }
 export interface CreateInstance {
   <T extends InstanceProps<Result>, Result = any>(

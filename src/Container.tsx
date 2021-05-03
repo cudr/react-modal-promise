@@ -59,6 +59,12 @@ const InstanceContainer: React.ForwardRefRenderFunction<
     r => Object.values(instances).forEach(i => i.reject(r)),
     [instances]
   )
+  const hasInstance = useCallback((hash: InstanceId) => !!instances?.[hash], [
+    instances,
+  ])
+  const getInstance = useCallback((hash: InstanceId) => instances?.[hash], [
+    instances,
+  ])
 
   const remove = useCallback(
     (hash: InstanceId, options: InstanceOptions): void => {
@@ -132,6 +138,8 @@ const InstanceContainer: React.ForwardRefRenderFunction<
     reject,
     resolveAll,
     rejectAll,
+    hasInstance,
+    getInstance,
   }))
 
   useEffect(() => {
@@ -141,6 +149,8 @@ const InstanceContainer: React.ForwardRefRenderFunction<
       reject,
       resolveAll,
       rejectAll,
+      hasInstance,
+      getInstance,
     })
 
     return () => unregisterContainer(scope)
