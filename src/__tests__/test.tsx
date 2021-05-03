@@ -1,21 +1,31 @@
 import React from 'react'
 import { mount } from 'enzyme'
+import { act } from 'react-dom/test-utils'
 
-import ModalController, { createModal } from '../index'
+import Container, { create, InstanceProps } from '../'
+import { ContainerRef } from '../types'
 
-const Modal = ({ value, error, isOpen, onResolve, onReject }: any) => {
+interface Props extends InstanceProps<string> {
+  value?: string
+  error?: string
+}
+
+const Modal: React.FC<Props> = ({
+  value,
+  error,
+  isOpen,
+  onResolve,
+  onReject,
+}) => {
   if (!isOpen) return null
 
   return (
     <div id="test">
       Test Modal
-      <button id="cancel" onClick={() => onResolve()}>
-        close
-      </button>
-      <button id="success" onClick={() => onResolve(value)}>
+      <button id="resolve" onClick={() => onResolve(value)}>
         submit
       </button>
-      <button id="dismiss" onClick={() => onReject(error)}>
+      <button id="reject" onClick={() => onReject(error)}>
         dismiss
       </button>
     </div>
@@ -24,212 +34,192 @@ const Modal = ({ value, error, isOpen, onResolve, onReject }: any) => {
 
 const sleep = (time: number = 100) => new Promise(res => setTimeout(res, time))
 
+const update = async (el: any, callback?: () => void) => {
+  await act(async () => {
+    await new Promise(r => setTimeout(r, 0))
+    await callback?.()
+    el.update()
+  })
+}
+
 describe('simple render suite', () => {
-  const controller = mount(<ModalController />)
-  const factory = controller.children()
-  const testModal = createModal(Modal, { enterTimeout: 10, exitTimeout: 10 })
+  const container = mount(<Container />)
+
+  const testModal = create(Modal, { enterTimeout: 10, exitTimeout: 10 })
 
   it('return correct value', async () => {
-    expect(testModal({ value: 'modal_one_value' })).resolves.toBe(
-      'modal_one_value'
-    )
+    let modal
+
+    await update(container, () => {
+      modal = testModal({ value: 'foo' })
+    })
+
+    expect(modal).resolves.toBe('foo')
   })
 
   it('mount first', async () => {
-    controller.update()
-    factory.update()
+    await update(container, () => sleep(10))
 
-    await sleep(10)
-
-    expect(factory.state().hashStack.length).toEqual(1)
-    expect(factory.render().find('#test').length).toBe(1)
+    expect(container.find('#test').length).toBe(1)
   })
 
   it('pass correct props to component', async () => {
-    expect(factory.update().find(Modal).props().value).toBe('modal_one_value')
-    expect(factory.update().find(Modal).props().enterTimeout).toBe(10)
+    expect(container.find(Modal).props().value).toBe('foo')
+    expect(container.find(Modal).props().enterTimeout).toBe(10)
   })
 
   it('mount second', async () => {
-    expect(testModal({ value: 'modal_two_value' })).resolves.toBe(undefined)
+    let modal
 
-    controller.update()
-    factory.update()
+    await update(container, () => {
+      modal = testModal({ value: 'bar' })
+    })
 
-    await sleep(10)
+    expect(modal).resolves.toBe('bar')
 
-    expect(factory.state().hashStack.length).toEqual(2)
-    expect(factory.render().find('#test').length).toBe(2)
+    await update(container, () => sleep(10))
+
+    expect(container.find('#test').length).toBe(2)
   })
 
   it('unmount first', async () => {
-    // simulate click
-    factory.update().find(Modal).at(1).find('#success').simulate('click')
+    container.find(Modal).at(1).find('#resolve').simulate('click')
 
-    await sleep(10)
-
-    controller.update()
-    factory.update()
-
-    expect(factory.state().hashStack.length).toEqual(1)
-    expect(factory.render().find('#test').length).toBe(1)
+    expect(container.find('#test').length).toBe(1)
   })
 
   it('unmount second', async () => {
-    factory.update().find(Modal).find('#cancel').simulate('click')
+    container.find(Modal).find('#resolve').simulate('click')
 
-    await sleep(10)
-
-    controller.update()
-    factory.update()
-
-    expect(factory.state().hashStack.length).toEqual(0)
-    expect(factory.render().find('#test').length).toBe(0)
+    expect(container.find('#test').length).toBe(0)
   })
 })
 
 describe('scope render suite', () => {
-  const scopeController = mount(<ModalController scope="my_scope" />)
-  const scopeFactory = scopeController.children()
-  const scopeModal = createModal(Modal, {
+  const scopeContainer = mount(<Container scope="my_scope" />)
+
+  const scopeModal = create(Modal, {
     scope: 'my_scope',
     enterTimeout: 10,
     exitTimeout: 10,
   })
 
   it('render in scope', async () => {
-    scopeModal()
+    await update(scopeContainer, () => {
+      scopeModal({ value: 'modal_one_value' })
 
-    scopeController.update()
-    scopeFactory.update()
+      return sleep(10)
+    })
 
-    await sleep(10)
-
-    expect(scopeFactory.state().hashStack.length).toEqual(1)
-    expect(scopeFactory.render().find('#test').length).toBe(1)
+    expect(scopeContainer.find('#test').length).toBe(1)
   })
 })
 
-describe('controller suite', () => {
-  const controller = mount(<ModalController scope="manipulate" />)
-  const factory = controller.children()
-  const modal = createModal(Modal, {
-    scope: 'manipulate',
+describe('reference suite', () => {
+  const containerRef = React.createRef<ContainerRef>() as {
+    current: ContainerRef
+  }
+  const container = mount(<Container scope="reference" ref={containerRef} />)
+
+  const referenceModal = create(Modal, {
+    scope: 'reference',
     enterTimeout: 10,
     exitTimeout: 10,
   })
 
   it('resolve instance', async () => {
-    expect(modal({ instanceId: 'one' })).resolves.toBe('test result')
-    expect(modal({ instanceId: 'two' })).resolves.toBe(undefined)
+    let modal1, modal2
 
-    controller.update()
-    factory.update()
+    await update(container, () => {
+      modal1 = referenceModal({ instanceId: 'one', value: 'foo' })
+      modal2 = referenceModal({ instanceId: 'two' })
 
-    await sleep(10)
+      return sleep(10)
+    })
 
-    expect(factory.state().hashStack.length).toEqual(2)
+    expect(modal1).resolves.toBe('foo')
+    expect(modal2).resolves.toBe(undefined)
 
-    // @ts-ignore
-    controller.instance().resolve('one', 'test result')
+    await update(container, () => {
+      containerRef.current.resolve('one', 'foo')
+    })
 
-    controller.update()
-    factory.update()
+    expect(container.find('#test').length).toBe(1)
 
-    await sleep(10)
+    await update(container, () => {
+      containerRef.current.resolve('two')
+    })
 
-    expect(factory.state().hashStack.length).toEqual(1)
-
-    // @ts-ignore
-    controller.instance().resolve('two')
-
-    controller.update()
-    factory.update()
-
-    await sleep(10)
-
-    expect(factory.state().hashStack.length).toEqual(0)
+    expect(container.find('#test').length).toBe(0)
   })
 
   it('reject instance', async () => {
-    modal({ instanceId: 'one' }).catch(err => {
-      expect(err).toBe('test error one')
+    let modal1, modal2
+
+    await update(container, () => {
+      modal1 = referenceModal({ instanceId: 'one' })
+      modal2 = referenceModal({ instanceId: 'two', error: 'bar' })
+
+      return sleep(10)
     })
 
-    modal({ instanceId: 'two', error: 'test error two' }).catch(err => {
-      expect(err).toBe('test error two')
+    expect(modal1).rejects.toBe('foo')
+    expect(modal2).rejects.toBe('bar')
+
+    expect(container.find('#test').length).toBe(2)
+
+    await update(container, () => {
+      containerRef.current.reject('one', 'foo')
     })
 
-    controller.update()
-    factory.update()
+    expect(container.find('#test').length).toBe(1)
 
-    await sleep(10)
+    container.find(Modal).find('#reject').simulate('click')
 
-    expect(factory.state().hashStack.length).toEqual(2)
-
-    // @ts-ignore
-    controller.instance().reject('one', 'test error one')
-
-    controller.update()
-    factory.update()
-
-    await sleep(10)
-
-    expect(factory.state().hashStack.length).toEqual(1)
-
-    factory.update().find(Modal).find('#dismiss').simulate('click')
-
-    await sleep(10)
-
-    controller.update()
-    factory.update()
-
-    await sleep(10)
-
-    expect(factory.state().hashStack.length).toEqual(0)
+    expect(container.find('#test').length).toBe(0)
   })
 
   it('resolve all instances', async () => {
-    modal()
-    modal()
+    let modal1, modal2
 
-    controller.update()
-    factory.update()
+    await update(container, () => {
+      modal1 = referenceModal()
+      modal2 = referenceModal()
 
-    await sleep(10)
+      return sleep(10)
+    })
 
-    expect(factory.state().hashStack.length).toEqual(2)
+    expect(modal1).resolves.toBe('foo')
+    expect(modal2).resolves.toBe('foo')
 
-    // @ts-ignore
-    controller.instance().resolveAll()
+    expect(container.find('#test').length).toBe(2)
 
-    controller.update()
-    factory.update()
+    await update(container, () => {
+      containerRef.current.resolveAll('foo')
+    })
 
-    await sleep(10)
-
-    expect(factory.state().hashStack.length).toEqual(0)
+    expect(container.find('#test').length).toBe(0)
   })
 
   it('reject all instances', async () => {
-    expect(modal()).rejects.toBe(undefined)
-    expect(modal()).rejects.toBe(undefined)
+    let modal1, modal2
 
-    controller.update()
-    factory.update()
+    await update(container, () => {
+      modal1 = referenceModal()
+      modal2 = referenceModal()
 
-    await sleep(10)
+      return sleep(10)
+    })
 
-    expect(factory.state().hashStack.length).toEqual(2)
+    expect(modal1).rejects.toBe('bar')
+    expect(modal2).rejects.toBe('bar')
 
-    // @ts-ignore
-    controller.instance().rejectAll()
+    expect(container.find('#test').length).toBe(2)
 
-    controller.update()
-    factory.update()
+    await update(container, () => {
+      containerRef.current.rejectAll('bar')
+    })
 
-    await sleep(10)
-
-    expect(factory.state().hashStack.length).toEqual(0)
+    expect(container.find('#test').length).toBe(0)
   })
 })
