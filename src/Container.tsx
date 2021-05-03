@@ -21,6 +21,7 @@ import {
   Instance,
   InstanceId,
   InstanceCreator,
+  InstanceOptions,
 } from './types'
 
 const InstanceContainer: React.ForwardRefRenderFunction<
@@ -60,19 +61,19 @@ const InstanceContainer: React.ForwardRefRenderFunction<
   )
 
   const remove = useCallback(
-    (hash: InstanceId): void => {
-      const { [hash]: target } = instances
-
+    (hash: InstanceId, options: InstanceOptions): void => {
       setHashStack(stack => stack.filter(s => s !== hash))
 
       setTimeout(() => {
-        const { [hash]: _, ...omitHash } = instances
+        setInstances(instances => {
+          const { [hash]: _, ...omitHash } = instances
 
-        setInstances(omitHash)
+          return omitHash
+        })
         onRemove?.(hash)
-      }, target?.exitTimeout)
+      }, options?.exitTimeout)
     },
-    [onRemove, instances]
+    [onRemove]
   )
 
   const create: InstanceCreator = useCallback(
@@ -80,18 +81,23 @@ const InstanceContainer: React.ForwardRefRenderFunction<
       new Promise((res, rej) => {
         const hash = props?.instanceId || hexGen()
 
-        const instanceOptions = { enterTimeout, exitTimeout, ...options }
+        const instanceOptions = {
+          enterTimeout,
+          exitTimeout,
+          instanceId: hash,
+          ...options,
+        }
 
         const instance: Instance = {
           Component,
           props: { ...instanceOptions, ...props },
           resolve: v => {
-            remove(hash)
+            remove(hash, instanceOptions)
             res(v)
             onResolve?.(v, hash)
           },
           reject: r => {
-            remove(hash)
+            remove(hash, instanceOptions)
             rej(r)
             onReject?.(r, hash)
           },

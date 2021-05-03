@@ -137,6 +137,8 @@ describe('reference suite', () => {
       return sleep(10)
     })
 
+    expect(container.find('#test').length).toBe(2)
+
     expect(modal1).resolves.toBe('foo')
     expect(modal2).resolves.toBe(undefined)
 
@@ -157,19 +159,19 @@ describe('reference suite', () => {
     let modal1, modal2
 
     await update(container, () => {
-      modal1 = referenceModal({ instanceId: 'one' })
-      modal2 = referenceModal({ instanceId: 'two', error: 'bar' })
+      modal1 = referenceModal({ instanceId: 'third' })
+      modal2 = referenceModal({ instanceId: 'fourth', error: 'bar' })
 
       return sleep(10)
     })
 
+    expect(container.find('#test').length).toBe(2)
+
     expect(modal1).rejects.toBe('foo')
     expect(modal2).rejects.toBe('bar')
 
-    expect(container.find('#test').length).toBe(2)
-
     await update(container, () => {
-      containerRef.current.reject('one', 'foo')
+      containerRef.current.reject('third', 'foo')
     })
 
     expect(container.find('#test').length).toBe(1)
