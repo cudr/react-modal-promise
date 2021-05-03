@@ -1,6 +1,6 @@
 {
   "name": "react-modal-promise",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Promise wrapper for React components",
   "keywords": [
     "react",
@@ -12,14 +12,17 @@
   "types": "lib/index.d.ts",
   "module": "lib/index.es.js",
   "scripts": {
-    "build": "npm run build:types && npm run build:js",
+    "build": "yarn build:types && yarn build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "NODE_ENV=production rollup -c -m inline",
+    "watch": "yarn build:js -w",
     "format": "prettier --write",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "yarn build",
     "test": "jest",
     "test:watch": "jest --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install",
+    "release": "yarn build && yarn version && yarn publish"
   },
   "files": [
     "lib"
@@ -38,18 +41,22 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
+    "@commitlint/cli": "^12.1.1",
+    "@commitlint/config-conventional": "^12.1.1",
     "@types/enzyme": "^3.10.3",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/jest": "^26.0.19",
     "@types/node": "^14.14.17",
     "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.3",
     "babel-jest": "^26.6.3",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.4.0",
-    "husky": "^4.3.6",
+    "husky": "^6.0.0",
     "jest": "^24.9.0",
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
@@ -68,18 +75,10 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
-    "*.{ts,tsx,json}": [
+    "*.{js,ts,tsx,json}": [
       "yarn run format",
       "git add"
     ]
-  },
-  "dependencies": {
-    "@babel/plugin-proposal-optional-chaining": "^7.13.12"
   }
 }
