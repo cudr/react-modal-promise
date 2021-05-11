@@ -8,25 +8,21 @@ declare global {
   }
 }
 
-let scopeStorage: ScopeModel = {}
-
 if (typeof window !== 'undefined') {
   if (!window[SCOPE_KEY]) {
     window[SCOPE_KEY] = {}
   }
-
-  scopeStorage = window[SCOPE_KEY]
 }
 
 export const registerContainer = (scope: Scope, ref: ContainerRef) => {
-  scopeStorage[scope] = ref
+  window[SCOPE_KEY][scope] = ref
 
   return ref
 }
 
 export const unregisterContainer = (scope: Scope) => {
-  delete scopeStorage[scope]
+  delete window[SCOPE_KEY][scope]
 }
 
 export const getContainer = (scope?: Scope) =>
-  scopeStorage[scope || DEFAULT_SCOPE]
+  window[SCOPE_KEY][scope || DEFAULT_SCOPE]

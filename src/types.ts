@@ -28,7 +28,7 @@ export interface InstanceProps<Result> extends InstanceOptions {
   /** @deprecated **/
   open: boolean
   /** @deprecated **/
-  close: (result: Result) => void
+  close: (result?: Result) => void
 }
 
 export interface Instance extends InstanceOptions {

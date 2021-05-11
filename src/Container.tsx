@@ -1,4 +1,5 @@
 import React, {
+  useRef,
   useImperativeHandle,
   forwardRef,
   useState,
@@ -33,8 +34,6 @@ const InstanceContainer: React.ForwardRefRenderFunction<
     enterTimeout,
     exitTimeout,
     isAppendIntances,
-    onOpen,
-    onRemove,
     onResolve,
     onReject,
   } = props || {}
@@ -66,71 +65,70 @@ const InstanceContainer: React.ForwardRefRenderFunction<
     instances,
   ])
 
-  const remove = useCallback(
-    (hash: InstanceId, options: InstanceOptions): void => {
-      setHashStack(stack => stack.filter(s => s !== hash))
+  const remove = (hash: InstanceId, options: InstanceOptions): void => {
+    setHashStack(stack => stack.filter(s => s !== hash))
+
+    setTimeout(() => {
+      setInstances(instances => {
+        const { [hash]: _, ...omitHash } = instances
+
+        return omitHash
+      })
+    }, options?.exitTimeout)
+
+    props.onRemove?.(hash)
+  }
+
+  const removeRef = useRef(remove)
+
+  useEffect(() => {
+    removeRef.current = remove
+  })
+
+  const create: InstanceCreator = (Component, options = {}, instanceProps) =>
+    new Promise((res, rej) => {
+      const hash = instanceProps?.instanceId || hexGen()
+
+      const instanceOptions = {
+        enterTimeout,
+        exitTimeout,
+        instanceId: hash,
+        ...options,
+      }
+
+      const instance: Instance = {
+        Component,
+        props: { ...instanceOptions, ...instanceProps },
+        resolve: v => {
+          removeRef.current(hash, instanceOptions)
+          res(v)
+          onResolve?.(v, hash)
+        },
+        reject: r => {
+          removeRef.current(hash, instanceOptions)
+          rej(r)
+          onReject?.(r, hash)
+        },
+        ...instanceOptions,
+      }
+
+      setInstances(instances =>
+        isAppendIntances
+          ? {
+              ...instances,
+              [hash]: instance,
+            }
+          : {
+              [hash]: instance,
+              ...instances,
+            }
+      )
 
       setTimeout(() => {
-        setInstances(instances => {
-          const { [hash]: _, ...omitHash } = instances
-
-          return omitHash
-        })
-        onRemove?.(hash)
-      }, options?.exitTimeout)
-    },
-    [onRemove]
-  )
-
-  const create: InstanceCreator = useCallback(
-    (Component, options = {}, props) =>
-      new Promise((res, rej) => {
-        const hash = props?.instanceId || hexGen()
-
-        const instanceOptions = {
-          enterTimeout,
-          exitTimeout,
-          instanceId: hash,
-          ...options,
-        }
-
-        const instance: Instance = {
-          Component,
-          props: { ...instanceOptions, ...props },
-          resolve: v => {
-            remove(hash, instanceOptions)
-            res(v)
-            onResolve?.(v, hash)
-          },
-          reject: r => {
-            remove(hash, instanceOptions)
-            rej(r)
-            onReject?.(r, hash)
-          },
-          ...instanceOptions,
-        }
-
-        setInstances(instances =>
-          isAppendIntances
-            ? {
-                ...instances,
-                [hash]: instance,
-              }
-            : {
-                [hash]: instance,
-                ...instances,
-              }
-        )
-
-        setTimeout(
-          () => setHashStack(stack => [...stack, hash]),
-          instanceOptions.enterTimeout
-        )
-
-        onOpen?.(hash, instance)
-      }),
-    [enterTimeout, exitTimeout, onOpen, onResolve, onReject, isAppendIntances]
-  )
+        setHashStack(stack => [...stack, hash])
+        props.onOpen?.(hash, instance)
+      }, instanceOptions.enterTimeout)
+    })
 
   useImperativeHandle(ref, () => ({
     create,
