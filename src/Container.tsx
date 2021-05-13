@@ -98,7 +98,7 @@ const InstanceContainer: React.ForwardRefRenderFunction<
 
       const instance: Instance = {
         Component,
-        props: { ...instanceOptions, ...instanceProps },
+        props: { ...options, ...instanceProps },
         resolve: v => {
           removeRef.current(hash, instanceOptions)
           res(v)
