@@ -58,9 +58,10 @@ const InstanceContainer: React.ForwardRefRenderFunction<
     r => Object.values(instances).forEach(i => i.reject(r)),
     [instances]
   )
-  const hasInstance = useCallback((hash: InstanceId) => !!instances?.[hash], [
-    instances,
-  ])
+  const hasInstance = useCallback(
+    (hash: InstanceId) => !!hashStack.find(id => id === hash),
+    [hashStack]
+  )
   const getInstance = useCallback((hash: InstanceId) => instances?.[hash], [
     instances,
   ])
