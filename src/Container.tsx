@@ -29,14 +29,9 @@ const InstanceContainer: React.ForwardRefRenderFunction<
   ContainerRef,
   ContainerProps
 > = (props, ref) => {
-  const {
-    scope = DEFAULT_SCOPE,
-    enterTimeout,
-    exitTimeout,
-    isAppendIntances,
-    onResolve,
-    onReject,
-  } = props || {}
+  const { scope = DEFAULT_SCOPE } = props || {}
+
+  const propsRef = useRef(props)
 
   const [instances, setInstances] = useState<{ [key: string]: Instance }>({})
   const [hashStack, setHashStack] = useState<Hex[]>([])
@@ -80,15 +75,17 @@ const InstanceContainer: React.ForwardRefRenderFunction<
     props.onRemove?.(hash)
   }
 
-  const removeRef = useRef(remove)
-
-  useEffect(() => {
-    removeRef.current = remove
-  })
-
   const create: InstanceCreator = (Component, options = {}, instanceProps) =>
     new Promise((res, rej) => {
       const hash = instanceProps?.instanceId || hexGen()
+
+      const {
+        enterTimeout,
+        exitTimeout,
+        isAppendIntances,
+        onResolve,
+        onReject,
+      } = propsRef.current
 
       const instanceOptions = {
         enterTimeout,
@@ -127,12 +124,21 @@ const InstanceContainer: React.ForwardRefRenderFunction<
 
       setTimeout(() => {
         setHashStack(stack => [...stack, hash])
-        props.onOpen?.(hash, instance)
+        propsRef.current.onOpen?.(hash, instance)
       }, instanceOptions.enterTimeout)
     })
 
+  const removeRef = useRef(remove)
+  const createRef = useRef(create)
+
+  useEffect(() => {
+    propsRef.current = props
+    removeRef.current = remove
+    createRef.current = create
+  })
+
   useImperativeHandle(ref, () => ({
-    create,
+    create: createRef.current,
     resolve,
     reject,
     resolveAll,
@@ -143,7 +149,7 @@ const InstanceContainer: React.ForwardRefRenderFunction<
 
   useEffect(() => {
     registerContainer(scope, {
-      create,
+      create: createRef.current,
       resolve,
       reject,
       resolveAll,
