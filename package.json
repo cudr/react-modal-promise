@@ -57,7 +57,7 @@
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.4.0",
     "husky": "^6.0.0",
-    "jest": "^24.9.0",
+    "jest": "^27.0.3",
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
     "react": "^16.9.0",
