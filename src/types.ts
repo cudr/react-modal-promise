@@ -19,10 +19,11 @@ export interface InstanceOptions {
   exitTimeout?: number
 }
 
-export interface InstanceProps<Result> extends InstanceOptions {
+export interface InstanceProps<Result, RejectReason = Result>
+  extends InstanceOptions {
   isOpen: boolean
   instanceId: Hex
-  onReject: (reason?: Result) => void
+  onReject: (reason?: RejectReason) => void
   onResolve: (result?: Result) => void
 
   /** @deprecated **/
