@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils'
 import Container, { create, InstanceProps } from '../'
 import { ContainerRef } from '../types'
 
-interface Props extends InstanceProps<string> {
+interface Props extends InstanceProps<string, string> {
   value?: string
   error?: string
 }

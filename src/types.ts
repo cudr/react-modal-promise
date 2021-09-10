@@ -19,17 +19,17 @@ export interface InstanceOptions {
   exitTimeout?: number
 }
 
-export interface InstanceProps<Result, RejectReason = Result>
+export interface InstanceProps<Resolve, Reject = Resolve>
   extends InstanceOptions {
   isOpen: boolean
   instanceId: Hex
-  onReject: (reason?: RejectReason) => void
-  onResolve: (result?: Result) => void
+  onReject: (rej?: Reject) => void
+  onResolve: (res?: Resolve) => void
 
   /** @deprecated **/
   open: boolean
   /** @deprecated **/
-  close: (result?: Result) => void
+  close: (res?: Resolve) => void
 }
 
 export interface Instance extends InstanceOptions {
@@ -56,17 +56,18 @@ export interface ContainerRef {
   hasInstance: (id: InstanceId) => boolean
 }
 export interface CreateInstance {
-  <T extends InstanceProps<Result>, Result = any>(
+  <T extends InstanceProps<Resolve, Reject>, Resolve = any, Reject = Resolve>(
     Component: InstanceComponent<T>,
     options?: InstanceOptions
   ): (
-    props?: Omit<T, keyof InstanceProps<Result>> &
-      Partial<InstanceProps<Result>>
-  ) => Promise<Result>
+    props?: Omit<T, keyof InstanceProps<Resolve, Reject>> &
+      Partial<InstanceProps<Resolve, Reject>>
+  ) => Promise<Resolve>
 }
 
-export type InstanceCreator = <T, Result>(
+export type InstanceCreator = <T, Resolve, Reject = Resolve>(
   Component: InstanceComponent<T>,
   options?: InstanceOptions,
-  props?: Omit<T, keyof InstanceProps<Result>> & Partial<InstanceProps<Result>>
-) => Promise<Result>
+  props?: Omit<T, keyof InstanceProps<Resolve, Reject>> &
+    Partial<InstanceProps<Resolve, Reject>>
+) => Promise<Resolve>
