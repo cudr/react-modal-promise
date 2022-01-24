@@ -1,9 +1,9 @@
 ## Install
-```
+```sh
 npm install react-modal-promise
 ```
 or
-```
+```sh
 yarn add react-modal-promise
 ```
 
@@ -12,7 +12,7 @@ yarn add react-modal-promise
 1. Place ModalContainer in any place of your App, it will emit new modal instances:
 
 ```tsx
-import ModalContainer from 'react-modal-promise'
+import { Container as ModalContainer } from 'react-modal-promise'
 
 class MyApp extends React.Component {
   render () {
@@ -30,7 +30,7 @@ class MyApp extends React.Component {
 You can resolve or reject Promise with onResolve() or onReject() callback from props:
 
 ```tsx
-import { createModal } from 'react-modal-promise'
+import { create } from 'react-modal-promise'
 import { Modal } from 'react-bootstrap'
 
 const MyModal = ({ isOpen, onResolve, onReject }) => (
@@ -45,8 +45,7 @@ const MyModal = ({ isOpen, onResolve, onReject }) => (
 And wrap it:
 
 ```tsx
-const myPromiseModal = createModal(MyModal)
-
+export const myPromiseModal = create(MyModal)
 ```
 
 3. Use the modal as a Promise everywhere:
@@ -58,6 +57,40 @@ myPromiseModal({ /*pass any props there*/ })
   }).catch(error => {
     // get error that you passed to 'onReject' function
   })
+```
+
+## ModalContainer props
+
+```tsx
+import { Container as ModalContainer } from 'react-modal-promise';
+
+function App() {
+  function onOpen(modalId) {
+    // do something when modal open
+  }
+  function onRemove(modalId) {
+    // do something when modal closes
+  }
+  function onResolve() {
+    // do something if modal resolved
+  }
+  function onReject() {
+    // do something if modal rejected
+  }
+
+  return (
+    <>
+      <ModalContainer
+        onOpen={onOpen}
+        onRemove={onRemove}
+        onResolve={onResolve}
+        onReject={onReject}
+        isAppendIntances
+      />
+      {/* other application */}
+    </>
+  );
+}
 ```
 
 ## Examples
