@@ -97,7 +97,7 @@ function App() {
 
 Simple:
 
-[![Edit react-modal-promise-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-modal-promise-example-by2pd?fontsize=14&hidenavigation=1&theme=dark)
+[![Edit react-modal-promise-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-modal-promise-example-w6jq5f)
 
 With hook and route control:
 
